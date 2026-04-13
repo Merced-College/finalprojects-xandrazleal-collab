@@ -106,6 +106,180 @@ public class GUIController {
 
     }
 
+    public void playSound(Button btn, fxItem sound){
+        System.out.println(btn.getText());
+        System.out.println(sound.getFilePath());
+
+        Media playfx = new Media(new File(sound.getFilePath()).toURI().toString());
+        MediaPlayer mediaPlayer = new MediaPlayer(playfx);
+
+
+        if (layerCheckBox.isSelected()) {
+
+            // ✅ LAYER MODE → don't stop anything
+            startLayeredPlayer(mediaPlayer);
+
+        } else {
+
+            if (mediaIsPlaying && currentPlayer != null) {
+
+                Timeline fadeOut = new Timeline(
+                        new KeyFrame(Duration.seconds(2),
+                                new KeyValue(currentPlayer.volumeProperty(), 0.0))
+                );
+
+                fadeOut.setOnFinished(e -> {
+                    currentPlayer.stop();
+                    currentPlayer.dispose();
+
+
+                    startNewMedia(mediaPlayer); // ✅ start AFTER fade-out
+                });
+
+                fadeOut.play();
+
+            } else {
+                startNewMedia(mediaPlayer);
+            }
+        }
+
+
+
+        loopCheckBox.setOnAction(event -> {
+
+                    int cycle = getLoopCycleCount();
+
+                    if (currentPlayer != null) {
+                        currentPlayer.setCycleCount(cycle);
+                    }
+
+                    for (MediaPlayer player : layeredPlayers) {
+                        player.setCycleCount(cycle);
+                    }
+                });
+
+        layerCheckBox.setOnAction(event -> {
+            if (!layerCheckBox.isSelected()) {
+                // Turning OFF layering → stop all layered sounds
+                for (MediaPlayer player : layeredPlayers) {
+                    player.stop();
+                    player.dispose();
+                }
+                layeredPlayers.clear();
+            }
+        });
+
+
+
+
+
+        mediaPlayer.setOnEndOfMedia(() ->{
+           mediaIsPlaying = false;
+
+        });
+
+        pauseBtn.setOnAction(event -> {
+            if (currentPlayer != null) {
+                currentPlayer.pause();
+            }
+        });
+
+        playBtn.setOnAction(event -> {
+            if (currentPlayer != null) {
+                currentPlayer.play();
+            }
+        });
+
+        stopBtn.setOnAction(event -> {
+
+            if (currentPlayer != null) {
+                currentPlayer.stop();
+                currentPlayer.dispose();
+                currentPlayer = null;
+                mediaIsPlaying = false;
+            }
+
+            // Stop layered players
+            for (MediaPlayer player : layeredPlayers) {
+                player.stop();
+                player.dispose();
+            }
+            layeredPlayers.clear();
+        });
+
+
+
+
+
+
+    }
+
+    private int getLoopCycleCount() {
+        return loopCheckBox.isSelected() ? MediaPlayer.INDEFINITE : 1;
+    }
+
+    private void startNewMedia(MediaPlayer mediaPlayer) {
+        currentPlayer = mediaPlayer;
+
+        currentPlayer.setCycleCount(getLoopCycleCount());
+
+        mediaPlayer.setVolume(0.0);
+        mediaPlayer.play();
+
+        Timeline fadeIn = new Timeline(
+                new KeyFrame(Duration.seconds(2),
+                        new KeyValue(mediaPlayer.volumeProperty(), volume)
+                )
+        );
+        fadeIn.play();
+
+        mediaIsPlaying = true;
+
+        currentPlayer.setOnEndOfMedia(() -> mediaIsPlaying = false);
+    }
+
+    private void startLayeredPlayer(MediaPlayer player){
+        currentPlayer.setCycleCount(getLoopCycleCount());
+        layeredPlayers.add(player);
+        player.setVolume(0.0);
+        player.play();
+
+        Timeline fadeIn = new Timeline(
+                new KeyFrame(Duration.seconds(2),
+                        new KeyValue(player.volumeProperty(), volume)
+                )
+        );
+        fadeIn.play();
+
+        player.setOnEndOfMedia(() -> layeredPlayers.remove(player));
+    }
+
+
+
+
+
+    public void volumeSlider(){
+
+
+        volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+
+            double percentage = (newVal.doubleValue() - volumeSlider.getMin()) / (volumeSlider.getMax() - volumeSlider.getMin()) * 100;
+
+
+            String style = String.format(
+                    "-fx-background-color: linear-gradient(to right, #153773 0%%, #153773 %1$f%%, #3C3F41 %1$f%%, #3C3F41 100%%); -fx-background-radius: 5px; -fx-pref-height: 6px;",
+                    percentage
+            );
+            volumeSlider.lookup(".track").setStyle(style);
+
+            int slvolume = newVal.intValue();
+            volume = (double) slvolume /100;
+            System.out.println("Volume: " + volume);
+        });
+
+
+
+    }
 
 
 
