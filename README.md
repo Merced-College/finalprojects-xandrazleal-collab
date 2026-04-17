@@ -3,5 +3,5 @@
 
 Xandra Leal
 
-Simple Soundbaord program, has the ability to play sound, add mp3 files, loop sound, play multiple audio tracks,
+Simple Soundboard program, has the ability to play sound, add mp3 files, loop sound, play multiple audio tracks,
 and dynamically search for audio
