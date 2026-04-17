@@ -5,10 +5,14 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
@@ -41,9 +45,16 @@ public class GUIController {
     @FXML
     private TextField searchBar;
 
+    @FXML
+    private Button openFileBtn;
+
+    @FXML
+    private Button resetBtn;
+
 
     private final FileManager files = new FileManager();
     private ArrayList<fxItem> fxList;
+    private ArrayList<Button> buttonList = new ArrayList<>();
 
 
 
@@ -68,21 +79,30 @@ public class GUIController {
     private Boolean mediaIsPlaying = false;
     private List<MediaPlayer> layeredPlayers = new ArrayList<>();
 
+    @FXML
+    private VBox volumeBox;
+
+
 
     @FXML
     public void initialize() throws IOException {
         files.fxSetup();
         fxList = files.getFxAudio();
         setupFxPanel();
+
         openAudioFolder();
+        resetGUI();
+        selectAudio();
         volumeSlider.setValue(volumeSlider.getMax());
         volumeSlider();
+        search();
         System.out.println("Test");
     }
 
 
     public void setupFxPanel() {
-
+        fxGrid.getChildren().clear();
+        buttonList.clear();
 
         int maxRows = fxList.size();
         int maxColumns = 5;
@@ -102,6 +122,7 @@ public class GUIController {
             fxGrid.setVgap(10);
             btn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
             fxGrid.add(btn, column, row);
+            buttonList.add(btn);
         }
 
     }
@@ -117,14 +138,14 @@ public class GUIController {
         if (layerCheckBox.isSelected()) {
 
             // ✅ LAYER MODE → don't stop anything
-            startLayeredPlayer(mediaPlayer);
+            startLayeredPlayer(mediaPlayer, sound.getName());
 
         } else {
 
             if (mediaIsPlaying && currentPlayer != null) {
 
                 Timeline fadeOut = new Timeline(
-                        new KeyFrame(Duration.seconds(2),
+                        new KeyFrame(Duration.seconds(1),
                                 new KeyValue(currentPlayer.volumeProperty(), 0.0))
                 );
 
@@ -166,6 +187,11 @@ public class GUIController {
                     player.dispose();
                 }
                 layeredPlayers.clear();
+                Node temp = volumeBox.getChildren().get(0);
+                Node temp2 = volumeBox.getChildren().get(1);
+                volumeBox.getChildren().clear();
+                volumeBox.getChildren().add(temp);
+                volumeBox.getChildren().add(temp2);
             }
         });
 
@@ -205,6 +231,7 @@ public class GUIController {
                 player.dispose();
             }
             layeredPlayers.clear();
+            volumeBox.getChildren().clear();
         });
 
 
@@ -227,7 +254,7 @@ public class GUIController {
         mediaPlayer.play();
 
         Timeline fadeIn = new Timeline(
-                new KeyFrame(Duration.seconds(2),
+                new KeyFrame(Duration.seconds(1),
                         new KeyValue(mediaPlayer.volumeProperty(), volume)
                 )
         );
@@ -237,25 +264,6 @@ public class GUIController {
 
         currentPlayer.setOnEndOfMedia(() -> mediaIsPlaying = false);
     }
-
-    private void startLayeredPlayer(MediaPlayer player){
-        currentPlayer.setCycleCount(getLoopCycleCount());
-        layeredPlayers.add(player);
-        player.setVolume(0.0);
-        player.play();
-
-        Timeline fadeIn = new Timeline(
-                new KeyFrame(Duration.seconds(2),
-                        new KeyValue(player.volumeProperty(), volume)
-                )
-        );
-        fadeIn.play();
-
-        player.setOnEndOfMedia(() -> layeredPlayers.remove(player));
-    }
-
-
-
 
 
     public void volumeSlider(){
@@ -272,37 +280,227 @@ public class GUIController {
             );
             volumeSlider.lookup(".track").setStyle(style);
 
-            int slvolume = newVal.intValue();
-            volume = (double) slvolume /100;
+            volume = newVal.doubleValue() / 100;
+
+            if (currentPlayer != null) {
+                currentPlayer.setVolume(volume);
+            }
+
+            for (MediaPlayer player : layeredPlayers) {
+                player.setVolume(volume);
+            }
+
             System.out.println("Volume: " + volume);
+
+
         });
 
 
 
+    }
+
+    private void startLayeredPlayer(MediaPlayer player, String name) {
+        player.setCycleCount(getLoopCycleCount());
+        layeredPlayers.add(player);
+
+        player.setVolume(volume);
+        player.play();
+
+        Label label = new Label(name);
+
+        Slider slider = new Slider(0, 1, volume);
+        slider.setPrefWidth(150);
+
+        slider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            player.setVolume(newVal.doubleValue());
+        });
+
+        Button stopBtn = new Button("X");
+        HBox container = new HBox(10, label, slider, stopBtn);
+
+
+        stopBtn.setOnAction(e -> {
+            player.stop();
+            player.dispose();
+            layeredPlayers.remove(player);
+            volumeBox.getChildren().remove(container);
+        });
+
+
+
+
+        volumeBox.getChildren().add(container);
+
+        player.setOnEndOfMedia(() -> {
+            player.stop();
+            player.dispose();
+            layeredPlayers.remove(player);
+            volumeBox.getChildren().remove(container);
+            System.out.println("boop");
+        });
     }
 
 
 
     @FXML
-    public void openAudioFolder(){
+    public void selectAudio() throws IOException {
         addBtn.setOnAction(event -> {
 
             files.addAudio();
             System.out.println("Button press");
-            setupFxPanel();
+            fxList = files.getFxAudio();
+            rebuildGrid(fxList);
+
         });
+
 
 
     }
 
-    public void search(){
-        searchBar.setOnAction(event -> {
-            if(!searchBar.getText().isEmpty()){
+    public void openAudioFolder() throws IOException {
+        openFileBtn.setOnAction(event -> {
 
+            try {
+
+                files.openFolder();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
+
         });
 
 
+
+    }
+
+    private void resetGUI(){
+        resetBtn.setOnAction(event -> {
+
+            fxList.clear();
+            try {
+                files.fxSetup();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            fxList = files.getFxAudio();
+            rebuildGrid(fxList);
+            System.out.println("Button press");
+        });
+    }
+
+
+
+
+    private void search() {
+        searchBar.textProperty().addListener((obs, oldVal, newVal) -> {
+
+            String filter = newVal == null ? "" : newVal.toLowerCase();
+
+            if (filter.isEmpty()) {
+                rebuildGrid(fxList);
+                return;
+            }
+
+
+            List<fxItem> sortedList = new ArrayList<>(fxList);
+            quickSort(sortedList, 0, sortedList.size() - 1);
+
+
+            int index = binarySearch(sortedList, filter);
+
+            List<fxItem> results = new ArrayList<>();
+
+            if (index != -1) {
+
+                results.add(sortedList.get(index));
+            } else {
+
+                for (fxItem item : sortedList) {
+                    if (item.getName().toLowerCase().contains(filter)) {
+                        results.add(item);
+                    }
+                }
+            }
+
+            rebuildGrid(results);
+        });
+    }
+
+    private void quickSort(List<fxItem> list, int low, int high) {
+        if (low < high) {
+            int pi = partition(list, low, high);
+
+            quickSort(list, low, pi - 1);
+            quickSort(list, pi + 1, high);
+        }
+    }
+
+    private int partition(List<fxItem> list, int low, int high) {
+        String pivot = list.get(high).getName().toLowerCase();
+        int i = low - 1;
+
+        for (int j = low; j < high; j++) {
+            if (list.get(j).getName().toLowerCase().compareTo(pivot) <= 0) {
+                i++;
+                swap(list, i, j);
+            }
+        }
+
+        swap(list, i + 1, high);
+        return i + 1;
+    }
+
+    private void swap(List<fxItem> list, int i, int j) {
+        fxItem temp = list.get(i);
+        list.set(i, list.get(j));
+        list.set(j, temp);
+    }
+
+    private int binarySearch(List<fxItem> list, String target) {
+        int left = 0;
+        int right = list.size() - 1;
+
+        target = target.toLowerCase();
+
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            String midVal = list.get(mid).getName().toLowerCase();
+
+            int cmp = midVal.compareTo(target);
+
+            if (cmp == 0) {
+                return mid; // found
+            } else if (cmp < 0) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        return -1; // not found
+    }
+
+    public void rebuildGrid(List<fxItem> list) {
+        fxGrid.getChildren().clear();
+        buttonList.clear();
+
+        int maxColumns = 5;
+
+        for (int i = 0; i < list.size(); i++) {
+            fxItem item = list.get(i);
+
+            Button btn = new Button(item.getName());
+
+            int column = i % maxColumns;
+            int row = i / maxColumns;
+
+            btn.setOnAction(e -> playSound(btn, item));
+
+            btn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+
+            fxGrid.add(btn, column, row);
+            buttonList.add(btn);
+        }
     }
 
 }

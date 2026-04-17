@@ -38,25 +38,11 @@
 
 <BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.soundboard.GUIController">
    <top>
-      <SplitPane dividerPositions="0.36622073578595316" prefHeight="67.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+      <SplitPane dividerPositions="0.36622073578595316, 0.5" prefHeight="67.0" prefWidth="600.0" BorderPane.alignment="CENTER">
         <items>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
-               <children>
-                  <Accordion layoutY="-4.0" prefHeight="47.0" prefWidth="126.0">
-                    <panes>
-                      <TitledPane animated="false" text="Options">
-                        <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                        </content>
-                      </TitledPane>
-                    </panes>
-                  </Accordion>
-               </children>
-            </AnchorPane>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
-               <children>
-                  <TextField fx:id="searchBar" layoutX="39.0" layoutY="12.0" prefHeight="33.0" prefWidth="306.0" />
-               </children></AnchorPane>
+            <Button fx:id="openFileBtn" mnemonicParsing="false" text="Open File" />
+            <Button fx:id="resetBtn" alignment="TOP_LEFT" mnemonicParsing="false" text="Reset" />
+            <TextField fx:id="searchBar" prefHeight="33.0" prefWidth="306.0" promptText="Search..." />
         </items>
       </SplitPane>
    </top>
@@ -67,7 +53,6 @@
                 <Button fx:id="addBtn" text="Add" />
                 <Button fx:id="pauseBtn" text="Pause" />
                 <Button fx:id="playBtn" text="Play" />
-            <Button fx:id="searchBtn" mnemonicParsing="false" text="Search" />
             <Button fx:id="stopBtn" mnemonicParsing="false" text="Stop" />
             <CheckBox fx:id="loopCheckBox" mnemonicParsing="false" text="Loop" />
             <CheckBox fx:id="layerCheckBox" mnemonicParsing="false" text="Play Multiple" />
@@ -87,7 +72,7 @@
         </VBox>
     </center>
    <bottom>
-      <VBox prefHeight="57.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+      <VBox fx:id="volumeBox" prefHeight="57.0" prefWidth="600.0" BorderPane.alignment="CENTER">
          <children>
             <Label text="Volume" />
             <Slider fx:id="volumeSlider">

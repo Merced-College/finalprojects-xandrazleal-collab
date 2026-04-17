@@ -96,13 +96,21 @@ public class FileManager {
 
     }
 
-    void uploadToFolder (File sourceFile, String dir){
+    private void uploadToFolder (File sourceFile, String dir){
         try {
             Path targetPath = Paths.get(dir, sourceFile.getName());
             Files.copy(sourceFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
         }catch (IOException e){
             e.printStackTrace();
         }
+    }
+
+    public void openFolder() throws IOException {
+        if(Desktop.isDesktopSupported()){
+            Desktop.getDesktop().open(fxDir);
+        }
+        fxList.clear();
+        fxSetup();
     }
 
 
