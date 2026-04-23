@@ -16,6 +16,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 
 import java.io.File;
@@ -54,8 +56,7 @@ public class GUIController {
 
     private final FileManager files = new FileManager();
     private ArrayList<fxItem> fxList;
-    private ArrayList<Button> buttonList = new ArrayList<>();
-
+    private Map<fxItem, Button> buttonMap = new HashMap<>();
 
 
     @FXML
@@ -73,7 +74,8 @@ public class GUIController {
     @FXML
     Button stopBtn;
 
-    @FXML CheckBox layerCheckBox;
+    @FXML
+    CheckBox layerCheckBox;
 
     private MediaPlayer currentPlayer;
     private Boolean mediaIsPlaying = false;
@@ -81,7 +83,6 @@ public class GUIController {
 
     @FXML
     private VBox volumeBox;
-
 
 
     @FXML
@@ -101,33 +102,23 @@ public class GUIController {
 
 
     public void setupFxPanel() {
-        fxGrid.getChildren().clear();
-        buttonList.clear();
+        for (int rows = 0; rows < fxList.size(); rows++) {
+            fxItem item = fxList.get(rows);
+            Button btn = new Button(item.getName());
 
-        int maxRows = fxList.size();
-        int maxColumns = 5;
-        for (int rows = 0; rows < maxRows; rows++) {
-            Button btn = new Button(fxList.get(rows).getName());
+            int column = rows % maxButtonperRow;
+            int row = rows / maxButtonperRow;
 
-            int column = rows % maxColumns;
-            int row = rows / maxColumns;
+            btn.setOnAction(event -> playSound(btn, item));
 
-
-            int finalRows = rows;
-            btn.setOnAction(event -> {
-                playSound(btn, fxList.get(finalRows));
-            });
-
-            fxGrid.setHgap(10);
-            fxGrid.setVgap(10);
-            btn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
             fxGrid.add(btn, column, row);
-            buttonList.add(btn);
+
+
         }
 
     }
 
-    public void playSound(Button btn, fxItem sound){
+    public void playSound(Button btn, fxItem sound) {
         System.out.println(btn.getText());
         System.out.println(sound.getFilePath());
 
@@ -165,23 +156,21 @@ public class GUIController {
         }
 
 
-
         loopCheckBox.setOnAction(event -> {
 
-                    int cycle = getLoopCycleCount();
+            int cycle = getLoopCycleCount();
 
-                    if (currentPlayer != null) {
-                        currentPlayer.setCycleCount(cycle);
-                    }
+            if (currentPlayer != null) {
+                currentPlayer.setCycleCount(cycle);
+            }
 
-                    for (MediaPlayer player : layeredPlayers) {
-                        player.setCycleCount(cycle);
-                    }
-                });
+            for (MediaPlayer player : layeredPlayers) {
+                player.setCycleCount(cycle);
+            }
+        });
 
         layerCheckBox.setOnAction(event -> {
             if (!layerCheckBox.isSelected()) {
-                // Turning OFF layering → stop all layered sounds
                 for (MediaPlayer player : layeredPlayers) {
                     player.stop();
                     player.dispose();
@@ -196,11 +185,8 @@ public class GUIController {
         });
 
 
-
-
-
-        mediaPlayer.setOnEndOfMedia(() ->{
-           mediaIsPlaying = false;
+        mediaPlayer.setOnEndOfMedia(() -> {
+            mediaIsPlaying = false;
 
         });
 
@@ -235,10 +221,6 @@ public class GUIController {
         });
 
 
-
-
-
-
     }
 
     private int getLoopCycleCount() {
@@ -266,7 +248,7 @@ public class GUIController {
     }
 
 
-    public void volumeSlider(){
+    public void volumeSlider() {
 
 
         volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
@@ -294,7 +276,6 @@ public class GUIController {
 
 
         });
-
 
 
     }
@@ -327,8 +308,6 @@ public class GUIController {
         });
 
 
-
-
         volumeBox.getChildren().add(container);
 
         player.setOnEndOfMedia(() -> {
@@ -341,7 +320,6 @@ public class GUIController {
     }
 
 
-
     @FXML
     public void selectAudio() throws IOException {
         addBtn.setOnAction(event -> {
@@ -352,7 +330,6 @@ public class GUIController {
             rebuildGrid(fxList);
 
         });
-
 
 
     }
@@ -370,10 +347,9 @@ public class GUIController {
         });
 
 
-
     }
 
-    private void resetGUI(){
+    private void resetGUI() {
         resetBtn.setOnAction(event -> {
 
             fxList.clear();
@@ -387,8 +363,6 @@ public class GUIController {
             System.out.println("Button press");
         });
     }
-
-
 
 
     private void search() {
@@ -481,26 +455,23 @@ public class GUIController {
     }
 
     public void rebuildGrid(List<fxItem> list) {
-        fxGrid.getChildren().clear();
-        buttonList.clear();
-
-        int maxColumns = 5;
+        buttonMap.clear();
 
         for (int i = 0; i < list.size(); i++) {
             fxItem item = list.get(i);
-
             Button btn = new Button(item.getName());
 
-            int column = i % maxColumns;
-            int row = i / maxColumns;
+            int column = i % 5;
+            int row = i / 5;
 
             btn.setOnAction(e -> playSound(btn, item));
 
-            btn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-
             fxGrid.add(btn, column, row);
-            buttonList.add(btn);
+
+            buttonMap.put(item, btn);
+
         }
+
     }
 
 }

@@ -17,7 +17,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class FileManager {
 
     private ArrayList<fxItem> fxList = new ArrayList<>();
-    private ArrayList<musicItem> musicList = new ArrayList<>();
 
     String baseDir = new File(System.getProperty("user.dir")).getAbsolutePath();
     File fxDir = new File(baseDir + "/AudioFile/");
