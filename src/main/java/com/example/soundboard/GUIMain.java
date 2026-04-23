@@ -15,6 +15,11 @@ public class GUIMain extends Application {
 
     @Override
     public void start(Stage stage) {
+
+        Application.setUserAgentStylesheet(
+                new atlantafx.base.theme.PrimerDark().getUserAgentStylesheet()
+        );
+
         System.out.println("START METHOD RUNNING");
         try {
             System.out.println("Starting UI...");
