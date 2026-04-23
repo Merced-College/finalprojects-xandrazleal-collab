@@ -137,7 +137,7 @@ public class GUIController {
 
         if (layerCheckBox.isSelected()) {
 
-            // ✅ LAYER MODE → don't stop anything
+
             startLayeredPlayer(mediaPlayer, sound.getName());
 
         } else {
@@ -154,7 +154,7 @@ public class GUIController {
                     currentPlayer.dispose();
 
 
-                    startNewMedia(mediaPlayer); // ✅ start AFTER fade-out
+                    startNewMedia(mediaPlayer);
                 });
 
                 fadeOut.play();
@@ -189,7 +189,7 @@ public class GUIController {
                 layeredPlayers.clear();
                 Node temp = volumeBox.getChildren().get(0);
                 Node temp2 = volumeBox.getChildren().get(1);
-                volumeBox.getChildren().clear();
+                volumeBox.getChildren().removeIf(node -> node instanceof HBox);
                 volumeBox.getChildren().add(temp);
                 volumeBox.getChildren().add(temp2);
             }
@@ -231,7 +231,7 @@ public class GUIController {
                 player.dispose();
             }
             layeredPlayers.clear();
-            volumeBox.getChildren().clear();
+            volumeBox.getChildren().removeIf(node -> node instanceof HBox);
         });
 
 
@@ -323,7 +323,7 @@ public class GUIController {
             player.stop();
             player.dispose();
             layeredPlayers.remove(player);
-            volumeBox.getChildren().remove(container);
+            volumeBox.getChildren().removeIf(node -> node instanceof HBox);
         });
 
 
@@ -335,7 +335,7 @@ public class GUIController {
             player.stop();
             player.dispose();
             layeredPlayers.remove(player);
-            volumeBox.getChildren().remove(container);
+            volumeBox.getChildren().removeIf(node -> node instanceof HBox);
             System.out.println("boop");
         });
     }

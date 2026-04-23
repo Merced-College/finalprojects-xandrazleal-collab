@@ -19,7 +19,8 @@ public class FileManager {
     private ArrayList<fxItem> fxList = new ArrayList<>();
     private ArrayList<musicItem> musicList = new ArrayList<>();
 
-    private final File fxDir = new File("AudioFile/");
+    String baseDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+    File fxDir = new File(baseDir + "/AudioFile/");
     private FilenameFilter mp3Filter;
     private JFileChooser chooser = new JFileChooser();
     private FileNameExtensionFilter filter;
@@ -29,7 +30,9 @@ public class FileManager {
 
     public void fxSetup() throws IOException {
 
-
+        if (!fxDir.exists()) {
+            fxDir.mkdirs();
+        }
 
         System.out.println("Dir exists: " + fxDir.exists());
         System.out.println("Files: " + Arrays.toString(fxDir.listFiles()));

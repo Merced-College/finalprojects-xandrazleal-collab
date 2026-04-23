@@ -9,7 +9,7 @@ import javax.swing.*;
 import java.io.IOException;
 
 public class Launcher {
-    static GUIMain start = new GUIMain();
+
 
     public static void main(String[] args) throws IOException {
         try {

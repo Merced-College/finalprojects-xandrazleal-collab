@@ -14,21 +14,23 @@ public class GUIMain extends Application {
 
 
     @Override
+    public void start(Stage stage) {
+        System.out.println("START METHOD RUNNING");
+        try {
+            System.out.println("Starting UI...");
 
-    public void start(Stage stage) throws IOException, IOException {
-        Application.setUserAgentStylesheet(
-                new atlantafx.base.theme.PrimerDark().getUserAgentStylesheet()
-        );
-        
+            FXMLLoader loader = new FXMLLoader(
+                    GUIMain.class.getResource("/com/example/soundboard/Scene.fxml")
+            );
 
-        FXMLLoader Loader = new FXMLLoader(GUIMain.class.getResource("Scene.fxml"));
-        Scene scene = new Scene(Loader.load(), 600, 400);
-       stage.setScene(scene);
-       stage.show();
+            Scene scene = new Scene(loader.load(), 600, 400);
+            stage.setScene(scene);
+            stage.show();
 
-
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-
 
 }
 
