@@ -17,11 +17,12 @@ This program has the ability to play sound, add mp3 files, loop sound, play mult
 and dynamically search for audio
 
 This program mainly uses Array Lists to create multiple instances of fxItem.java. this class contains all the set and getters for
-the variables necessary to retrieve paths, names, and location. The Buttons updates using Hashmaps, A hashmap instance is created for each button and added the table. Strings are used to store path files
-and the names of each audio file.
+the variables necessary to retrieve paths, names, and location. The volume Sliders are tracked using Hashmaps, so when the user changes
+the volume of a sub Volume bar it doesn't have to loop through a list. And uses an Instance of Arrays to grab all the files out of the 
+AudioFolder
 
 This program contains a quick sort sorting Algorithm, and a binary search searching Algorithm. This program consists of many small algorithms that handle a
 specific task. The more notable ones are startLayeredPlayer, which handles all stacking audio by creating new instances of audioPlayer
 and keeping track of which one is currently playing. The volumeSlider algorithm handles the main Volume controls, globally
-updating volume. The updateGrid function handles the grid display, adding buttons and reading hashmaps.
+updating volume. The updateGrid function handles the grid display, adding buttons
  

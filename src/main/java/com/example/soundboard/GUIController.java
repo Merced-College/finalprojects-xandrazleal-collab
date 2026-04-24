@@ -21,13 +21,19 @@ public class GUIController {
 
     //@FXML links the item created here with the item in the FXML sheet, with this they act as the same, where changing one will change the
     //other
-    @FXML private Button addBtn, pauseBtn, playBtn, stopBtn, openFileBtn, resetBtn;
-    @FXML private TextField searchBar;
-    @FXML private Slider volumeSlider;
-    @FXML private CheckBox loopCheckBox, layerCheckBox;
+    @FXML
+    private Button addBtn, pauseBtn, playBtn, stopBtn, openFileBtn, resetBtn;
+    @FXML
+    private TextField searchBar;
+    @FXML
+    private Slider volumeSlider;
+    @FXML
+    private CheckBox loopCheckBox, layerCheckBox;
     //Gridpane is used to add buttons in order, allowing 5 rows with infinite column
-    @FXML private GridPane fxGrid;
-    @FXML private VBox volumeBox;
+    @FXML
+    private GridPane fxGrid;
+    @FXML
+    private VBox volumeBox;
 
     //Creates instance of custom FileManager Class
     private final FileManager files = new FileManager();
@@ -129,22 +135,49 @@ public class GUIController {
         searchBar.textProperty().addListener((obs, oldVal, newVal) -> {
             //Creates a filter, if the newVal from searchbar returns null, sets it to "" to avoid errors, else sets the value to lowercase for easier parsing.
             String filter = newVal == null ? "" : newVal.toLowerCase();
+
             //If nothing in filter, rebuilds Grid
             if (filter.isEmpty()) {
                 rebuildGrid(fxList);
                 return;
             }
+
+
+            List<fxItem> sortedList = new ArrayList<>(fxList);
+            //Sorts fxList
+            files.quickSort(sortedList, 0, sortedList.size() - 1);
+
+            //Calls a binary search that returns every result with the added filter
+            int index = files.binarySearch(sortedList, filter);
+
             //New list of results for returned binary search
             List<fxItem> results = new ArrayList<>();
 
-            //Sorts through fxList and adds every file that passes the filter
-            for (fxItem item : fxList) {
-                if (item.getName().toLowerCase().contains(filter)) {
-                    results.add(item);
+            if (index != -1) {
+                //if exact match found
+                results.add(sortedList.get(index));
+
+                //runs through both for verifying, adds any value in either list that contains filter
+            } else {
+                //Adds to sorted list for each item returned from results
+                for (fxItem item : sortedList) {
+                    if (item.getName().toLowerCase().contains(filter)) {
+                        results.add(item);
+                    }
+                }
+                //Sorts through fxList and adds every file that passes the filter
+                for (fxItem item : fxList) {
+                    if (item.getName().toLowerCase().contains(filter)) {
+                        results.add(item);
+                    }
                 }
             }
+            //Rebuilds grid on each update
 
             rebuildGrid(results);
         });
+
+
     }
+
 }

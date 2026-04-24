@@ -180,11 +180,11 @@ includes functions for adding, opening, Sorting and Searching Audio.
             int mid = (left + right) / 2;
             String midVal = list.get(mid).getName().toLowerCase();
 
-            int cmp = midVal.compareTo(target);
+            int check = midVal.compareTo(target);
 
-            if (cmp == 0) {
+            if (check == 0) {
                 return mid; // found
-            } else if (cmp < 0) {
+            } else if (check < 0) {
                 left = mid + 1;
             } else {
                 right = mid - 1;
