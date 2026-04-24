@@ -7,7 +7,11 @@ Xandra Leal
 
 Simple Soundboard program to play a variety of user added fx
 
-To run the program download the Soundboard file in main that contains Soundboard.exe and run it in the downloaded file.
+To run the program:
+
+On the right site of Github find Releases and Download SoundBoard 1.0.zip
+
+Extract the 7zip file somewhere and doubleclick the Soundbaord.exe
 
 This program has the ability to play sound, add mp3 files, loop sound, play multiple audio tracks,
 and dynamically search for audio
