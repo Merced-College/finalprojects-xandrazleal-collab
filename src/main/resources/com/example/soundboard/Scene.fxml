@@ -36,6 +36,28 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<!--
+ BorderPane: Main panel that every other panel is built off of, lets other panes and elements "Stick" to the side
+ of an app, chosen for its ability to scale easily
+
+Has 5 subPlanes, top, center, bottom, left, right.
+
+SplitPane: Splits a pane at user selected point
+
+Button: Creates a button the pane
+
+VBox: a pane that stacks elements on top of eachother
+
+HBox: a pane that stacks elements to the side of eachother
+
+GridPane: Creates a grid depending on how many elements are added
+
+CheckBox: Creates a checkBox, can read when selected and unselected
+
+Slider: creates a Slider, used for Volume
+
+
+ -->
 <BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.soundboard.GUIController">
    <top>
       <SplitPane dividerPositions="0.36622073578595316, 0.5" prefHeight="67.0" prefWidth="600.0" BorderPane.alignment="CENTER">

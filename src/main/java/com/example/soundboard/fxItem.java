@@ -31,6 +31,7 @@ public class fxItem {
 
 
     @Override
+   //Safely checks name and filepath are correct for adding to Hashmap
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof fxItem)) return false;
@@ -38,7 +39,7 @@ public class fxItem {
         return Objects.equals(name, other.name) &&
                 Objects.equals(filePath, other.filePath);
     }
-
+        //Returns hashCodes object for name and filepath
     @Override
     public int hashCode() {
         return Objects.hash(name, filePath);

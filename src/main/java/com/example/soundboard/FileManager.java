@@ -15,20 +15,27 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 
 public class FileManager {
-
+    //Creates new ArrayList
     private ArrayList<fxItem> fxList = new ArrayList<>();
 
+    //Gets directory of folder program is in
     String baseDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+
+    //gets directory Audio Files are stored in
     File fxDir = new File(baseDir + "/AudioFile/");
+
+    //Adds Filters and Choosers
     private FilenameFilter mp3Filter;
     private JFileChooser chooser = new JFileChooser();
     private FileNameExtensionFilter filter;
+
+    //new fxItem
     private fxItem addSound;
 
 
 
     public void fxSetup() throws IOException {
-
+        //Creates audioFolder in program file location
         if (!fxDir.exists()) {
             fxDir.mkdirs();
         }
@@ -37,16 +44,20 @@ public class FileManager {
         System.out.println("Files: " + Arrays.toString(fxDir.listFiles()));
         System.out.println("FileManager list size: " + fxList.size());
 
-
+        //Creates a filter for mp3 files in specific
         mp3Filter = new FilenameFilter() {
             @Override
+
+            //Only true if file ends in .mp3
             public boolean accept(File fxDir, String name) {
                 return name.endsWith(".mp3");
             }
         };
 
+        //Array File is added for each item true in mp3Filter
         File[] mp3Files = fxDir.listFiles(mp3Filter);
 
+        //Creates fxItem and adds to arrayList for each true file
         if (mp3Files != null) {
             for (File fileName : mp3Files) {
 
@@ -66,12 +77,12 @@ public class FileManager {
 
 
 
-
+//returns arrayList
     public ArrayList<fxItem> getFxAudio(){
         return fxList;
     }
 
-
+//Uses JFileChooser to create a new file Chooser gui that only accepts mp3 files
     public void addAudio() {
 
         System.out.println(UIManager.getSystemLookAndFeelClassName());
@@ -84,6 +95,8 @@ public class FileManager {
 
         int returnVal = chooser.showOpenDialog(null);
         File sourceFile;
+
+        //If choice is valid sets fxList addSound and add it to fxList
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             sourceFile = chooser.getSelectedFile();
             uploadToFolder(sourceFile, fxDir.toString());
@@ -97,7 +110,7 @@ public class FileManager {
 
 
     }
-
+    //Copies user selected file adds it to folder. replaces any same named files
     private void uploadToFolder (File sourceFile, String dir){
         try {
             Path targetPath = Paths.get(dir, sourceFile.getName());
@@ -106,7 +119,7 @@ public class FileManager {
             e.printStackTrace();
         }
     }
-
+    //Opens audio folder
     public void openFolder() throws IOException {
         if(Desktop.isDesktopSupported()){
             Desktop.getDesktop().open(fxDir);

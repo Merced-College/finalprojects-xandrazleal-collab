@@ -27,6 +27,8 @@ import java.util.List;
 
 public class GUIController {
 
+    //@FXML links the item created here with the item in the FXML sheet, with this they act as the same, where changing one will change the
+    //other
     @FXML
     private TableView<fxItem> fxTable;
 
@@ -53,12 +55,17 @@ public class GUIController {
     @FXML
     private Button resetBtn;
 
-
+    //Creates instance of custom FileManager Class
     private final FileManager files = new FileManager();
+
+    //ArrayList for class fxItem
     private ArrayList<fxItem> fxList;
+
+    //Hashmap for fxItem
     private Map<fxItem, Button> buttonMap = new HashMap<>();
 
 
+    //Gridpane is used to add buttons in order, allowing 5 rows with infinite column
     @FXML
     private GridPane fxGrid;
     int maxButtonperRow = 5;
@@ -77,6 +84,7 @@ public class GUIController {
     @FXML
     CheckBox layerCheckBox;
 
+    //MediaPlayer is what plays the audio files., The List of MediaPLayer handles the overlapping audio.
     private MediaPlayer currentPlayer;
     private Boolean mediaIsPlaying = false;
     private List<MediaPlayer> layeredPlayers = new ArrayList<>();
@@ -87,30 +95,45 @@ public class GUIController {
 
     @FXML
     public void initialize() throws IOException {
+        //starts Filemanager setup, imports the fxItem list from files, and adds them to panel
         files.fxSetup();
         fxList = files.getFxAudio();
         setupFxPanel();
 
+         //Initialises the event listener for the audio folder button, reset button, addAudio button
         openAudioFolder();
         resetGUI();
         selectAudio();
+
+        //sets volume to 100 on startup, initializes slider listener and search button
         volumeSlider.setValue(volumeSlider.getMax());
         volumeSlider();
         search();
-        System.out.println("Test");
+        System.out.println("Intitialize successfull");
     }
 
 
     public void setupFxPanel() {
+
+        //Adds buttons depending on how many items are in fxList
         for (int rows = 0; rows < fxList.size(); rows++) {
             fxItem item = fxList.get(rows);
-            Button btn = new Button(item.getName());
 
+            //creates new button with fxItem name
+            Button btn = new Button(item.getName());
+            //Sets which column & row the button will be in the fxGrid.
+
+            //remainder will be 1-5 which sets the column
             int column = rows % maxButtonperRow;
+
+            //division will set the rows
             int row = rows / maxButtonperRow;
 
+
+            //adds event listener for button press that calls playSound
             btn.setOnAction(event -> playSound(btn, item));
 
+            //Adds button to grid
             fxGrid.add(btn, column, row);
 
 
@@ -118,14 +141,20 @@ public class GUIController {
 
     }
 
+    //Arguments are passed by the buttons created above
     public void playSound(Button btn, fxItem sound) {
         System.out.println(btn.getText());
         System.out.println(sound.getFilePath());
 
+        //Creates a new media called PlayFx that links to the fxItem linked to the button that called it.
         Media playfx = new Media(new File(sound.getFilePath()).toURI().toString());
+
+        //The Media object is used to tell the MediaPlayer where the sound files are and how to encode it.
         MediaPlayer mediaPlayer = new MediaPlayer(playfx);
 
+        //If layered checkbox is clicked, calls a custom function that adds player to a List to track it.
 
+        //Else it stops current Audio player with a fadeout, and plays starts new Audio Player with a fadeIn
         if (layerCheckBox.isSelected()) {
 
 
@@ -134,41 +163,41 @@ public class GUIController {
         } else {
 
             if (mediaIsPlaying && currentPlayer != null) {
-
+                //Timeline works by "Animating" the player. This tells the player that over 1 second change the current audio to 0
                 Timeline fadeOut = new Timeline(
                         new KeyFrame(Duration.seconds(1),
                                 new KeyValue(currentPlayer.volumeProperty(), 0.0))
                 );
-
+                //When finished Stops and completely removes player from program
                 fadeOut.setOnFinished(e -> {
                     currentPlayer.stop();
                     currentPlayer.dispose();
 
-
+                    //starts new player with new Media
                     startNewMedia(mediaPlayer);
                 });
 
                 fadeOut.play();
-
             } else {
                 startNewMedia(mediaPlayer);
             }
         }
 
-
+        //Reads if loopcheckbox is clicked.
         loopCheckBox.setOnAction(event -> {
 
+            //if checkbox is clicked sets cycle to value INDEFINITE, meaning infinite Cycle is amount of times played
             int cycle = getLoopCycleCount();
 
             if (currentPlayer != null) {
                 currentPlayer.setCycleCount(cycle);
             }
-
+            //Sets for all players active
             for (MediaPlayer player : layeredPlayers) {
                 player.setCycleCount(cycle);
             }
         });
-
+        //if checkbox is clicked on it creates a new volumeSlider for each instance, if unchecked it destroys all mediaPlayer
         layerCheckBox.setOnAction(event -> {
             if (!layerCheckBox.isSelected()) {
                 for (MediaPlayer player : layeredPlayers) {
@@ -184,24 +213,27 @@ public class GUIController {
             }
         });
 
-
+        //when media is over, sets global boolean to false
         mediaPlayer.setOnEndOfMedia(() -> {
             mediaIsPlaying = false;
 
         });
-
+        //If there's sound playing, pause it.
         pauseBtn.setOnAction(event -> {
             if (currentPlayer != null) {
                 currentPlayer.pause();
             }
         });
-
+            //If there's sound paused, play it
         playBtn.setOnAction(event -> {
             if (currentPlayer != null) {
                 currentPlayer.play();
             }
         });
 
+
+        //Stops all audio players, destroys them, and does so for all layered audioPLayers and gets rid of all extra
+        //Volume Sliders
         stopBtn.setOnAction(event -> {
 
             if (currentPlayer != null) {
@@ -222,11 +254,12 @@ public class GUIController {
 
 
     }
-
+    //getLoopCycle, if loopcheckbox is clicked, loopcycle = Infinite, else equals 1
     private int getLoopCycleCount() {
         return loopCheckBox.isSelected() ? MediaPlayer.INDEFINITE : 1;
     }
 
+    //Starts the sound of a mediaplayer with a fade in over 1 second, and sets global Boolean to true.
     private void startNewMedia(MediaPlayer mediaPlayer) {
         currentPlayer = mediaPlayer;
 
@@ -247,27 +280,31 @@ public class GUIController {
         currentPlayer.setOnEndOfMedia(() -> mediaIsPlaying = false);
     }
 
-
+    //Creates the main Volume Slider
     public void volumeSlider() {
 
-
+        //gets value of slider position when slider is moved, executes whenever slider is changed
         volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-
+            //converts volume slider return to a double and divides it to get the position where the slider is at so the css can create a
+            //volume bar effect
             double percentage = (newVal.doubleValue() - volumeSlider.getMin()) / (volumeSlider.getMax() - volumeSlider.getMin()) * 100;
 
-
+            //Sets a blue bar behind the slider point, gray above it
             String style = String.format(
                     "-fx-background-color: linear-gradient(to right, #153773 0%%, #153773 %1$f%%, #3C3F41 %1$f%%, #3C3F41 100%%); -fx-background-radius: 5px; -fx-pref-height: 6px;",
                     percentage
             );
             volumeSlider.lookup(".track").setStyle(style);
 
+            //sets volume to double
             volume = newVal.doubleValue() / 100;
 
+            //If a mediaPlayer exists, set it to new volume
             if (currentPlayer != null) {
                 currentPlayer.setVolume(volume);
             }
 
+            //sets all layered audio players to the volume(stacks with the user set volume also)
             for (MediaPlayer player : layeredPlayers) {
                 player.setVolume(volume);
             }
@@ -279,14 +316,17 @@ public class GUIController {
 
 
     }
-
+    //Creates a list of layered player and plays them.
     private void startLayeredPlayer(MediaPlayer player, String name) {
         player.setCycleCount(getLoopCycleCount());
+        //adds player to layeredPLayers List, sets volume and play
         layeredPlayers.add(player);
 
         player.setVolume(volume);
         player.play();
 
+
+        //Creates a new mini Volume Slider whenever a layered player is added
         Label label = new Label(name);
 
         Slider slider = new Slider(0, 1, volume);
@@ -296,6 +336,8 @@ public class GUIController {
             player.setVolume(newVal.doubleValue());
         });
 
+
+        //Creates a stop button that when clicked stops audio and deletes mini audioslider
         Button stopBtn = new Button("X");
         HBox container = new HBox(10, label, slider, stopBtn);
 
@@ -304,36 +346,45 @@ public class GUIController {
             player.stop();
             player.dispose();
             layeredPlayers.remove(player);
+
+            //This is needed so It only deletes the ones linked to the created Hbox so
+            //the main slider isn't deleted
             volumeBox.getChildren().removeIf(node -> node instanceof HBox);
         });
 
 
         volumeBox.getChildren().add(container);
 
+        //Stops and deletes when Audio has ended
         player.setOnEndOfMedia(() -> {
             player.stop();
             player.dispose();
             layeredPlayers.remove(player);
             volumeBox.getChildren().removeIf(node -> node instanceof HBox);
-            System.out.println("boop");
+            System.out.println("Audio Ended");
         });
     }
 
 
     @FXML
+
+    //links button to addAudio from fileManager
     public void selectAudio() throws IOException {
         addBtn.setOnAction(event -> {
 
             files.addAudio();
-            System.out.println("Button press");
+            System.out.println("Add audio pressed");
+            //updates fxList with added audio files
             fxList = files.getFxAudio();
+
+            //rebuilds button layout with any added audioFiles
             rebuildGrid(fxList);
 
         });
 
 
     }
-
+    //Links a button to openFolder in FileManager
     public void openAudioFolder() throws IOException {
         openFileBtn.setOnAction(event -> {
 
@@ -349,6 +400,7 @@ public class GUIController {
 
     }
 
+    //Resets fxList and rebuilds button Grid
     private void resetGUI() {
         resetBtn.setOnAction(event -> {
 
@@ -360,16 +412,19 @@ public class GUIController {
             }
             fxList = files.getFxAudio();
             rebuildGrid(fxList);
-            System.out.println("Button press");
+            System.out.println("Reset button pressed");
         });
     }
 
-
+    //Creates the search Algorithm
     private void search() {
-        searchBar.textProperty().addListener((obs, oldVal, newVal) -> {
 
+        //Updates searchbar and calls search whenever it is changed
+        searchBar.textProperty().addListener((obs, oldVal, newVal) -> {
+            //Creates a filter, if the newVal from searchbar returns null, sets it to "" to avoid errors, else sets the value to lowercase for easier parsing.
             String filter = newVal == null ? "" : newVal.toLowerCase();
 
+            //If nothing in filter, rebuilds Grid
             if (filter.isEmpty()) {
                 rebuildGrid(fxList);
                 return;
@@ -377,29 +432,32 @@ public class GUIController {
 
 
             List<fxItem> sortedList = new ArrayList<>(fxList);
+            //Sorts fxList
             quickSort(sortedList, 0, sortedList.size() - 1);
 
-
+            //Calls a binary search that returns every result with the added filter
             int index = binarySearch(sortedList, filter);
 
+            //New list of results for returned binary search
             List<fxItem> results = new ArrayList<>();
 
             if (index != -1) {
-
+                //if return not -1 sorted list index to results
                 results.add(sortedList.get(index));
             } else {
-
+                //Adds to sorted list for each item returned from results
                 for (fxItem item : sortedList) {
                     if (item.getName().toLowerCase().contains(filter)) {
                         results.add(item);
                     }
                 }
             }
-
+            //Rebuilds grid on each update
             rebuildGrid(results);
         });
     }
 
+    //Recursive implementation of quicksort, checks the middle and upper pivot points untill value is found
     private void quickSort(List<fxItem> list, int low, int high) {
         if (low < high) {
             int pi = partition(list, low, high);
@@ -409,6 +467,7 @@ public class GUIController {
         }
     }
 
+        //Creates the partition middle value for the upper and lower bounds
     private int partition(List<fxItem> list, int low, int high) {
         String pivot = list.get(high).getName().toLowerCase();
         int i = low - 1;
@@ -423,13 +482,14 @@ public class GUIController {
         swap(list, i + 1, high);
         return i + 1;
     }
-
+    //Swaps two elements
     private void swap(List<fxItem> list, int i, int j) {
         fxItem temp = list.get(i);
         list.set(i, list.get(j));
         list.set(j, temp);
     }
 
+    //Binary search implementation, checks the middle of list, checks if value is higher or smaller, then checks new half untill found
     private int binarySearch(List<fxItem> list, String target) {
         int left = 0;
         int right = list.size() - 1;
@@ -454,9 +514,13 @@ public class GUIController {
         return -1; // not found
     }
 
+    //Rebuild grid
+
     public void rebuildGrid(List<fxItem> list) {
+        //clears hashmap
         buttonMap.clear();
 
+        //For each item list creates a playsound button and adds it to a Hashmap
         for (int i = 0; i < list.size(); i++) {
             fxItem item = list.get(i);
             Button btn = new Button(item.getName());
