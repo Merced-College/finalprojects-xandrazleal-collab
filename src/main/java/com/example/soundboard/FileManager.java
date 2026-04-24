@@ -10,11 +10,21 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 
 public class FileManager {
+
+    /*
+Author: Xandra Leal
+Class: FileManager
+
+Description:
+Manages File systems
+includes functions for adding, opening, Sorting and Searching Audio.
+ */
     //Creates new ArrayList
     private ArrayList<fxItem> fxList = new ArrayList<>();
 
@@ -126,6 +136,62 @@ public class FileManager {
         }
         fxList.clear();
         fxSetup();
+    }
+
+    public void quickSort(java.util.List<fxItem> list, int low, int high) {
+        if (low < high) {
+            int pi = partition(list, low, high);
+
+            quickSort(list, low, pi - 1);
+            quickSort(list, pi + 1, high);
+        }
+    }
+
+    //Creates the partition middle value for the upper and lower bounds
+    public int partition(java.util.List<fxItem> list, int low, int high) {
+        String pivot = list.get(high).getName().toLowerCase();
+        int i = low - 1;
+
+        for (int j = low; j < high; j++) {
+            if (list.get(j).getName().toLowerCase().compareTo(pivot) <= 0) {
+                i++;
+                swap(list, i, j);
+            }
+        }
+
+        swap(list, i + 1, high);
+        return i + 1;
+    }
+    //Swaps two elements
+    public void swap(java.util.List<fxItem> list, int i, int j) {
+        fxItem temp = list.get(i);
+        list.set(i, list.get(j));
+        list.set(j, temp);
+    }
+
+    //Binary search implementation, checks the middle of list, checks if value is higher or smaller, then checks new half untill found
+    public int binarySearch(List<fxItem> list, String target) {
+        int left = 0;
+        int right = list.size() - 1;
+
+        target = target.toLowerCase();
+
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            String midVal = list.get(mid).getName().toLowerCase();
+
+            int cmp = midVal.compareTo(target);
+
+            if (cmp == 0) {
+                return mid; // found
+            } else if (cmp < 0) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        return -1; // not found
     }
 
 

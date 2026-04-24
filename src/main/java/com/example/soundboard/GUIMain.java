@@ -6,10 +6,15 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.util.*;
 
-//tells the program this is the start of the gui
+/*
+Author: Xandra Leal
+Class: GUIMain
+
+Description:
+Launches the JavaFX main application window with settings
+ */
 public class GUIMain extends Application {
 
 

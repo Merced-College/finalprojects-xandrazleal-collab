@@ -1,8 +1,6 @@
 package com.example.soundboard;
 
 import com.formdev.flatlaf.FlatDarculaLaf;
-import com.formdev.flatlaf.FlatDarkLaf;
-import com.formdev.flatlaf.FlatIntelliJLaf;
 import javafx.application.Application;
 
 import javax.swing.*;
@@ -29,7 +27,7 @@ public class Launcher {
 //the start of the GUI App. If it's on the class that has main, it will execute before Application.launch causing it to crash
 //in specific scenarios depending on how its packaged. So calling it through Application.launch circumvents this problem.
 
-//For JavaFX I used the main Documentation combined with a javaFX exampleProject created by jjenkov
+//For JavaFX references I used the main Documentation combined with a javaFX exampleProject created by jjenkov
 
 // https://openjfx.io/javadoc/26/
 
